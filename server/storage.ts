@@ -393,6 +393,8 @@ const USERS_EXPECTED_COLUMNS: ColumnDefinition[] = [
   { name: 'first_name', type: 'TEXT', nullable: true },
   { name: 'last_name', type: 'TEXT', nullable: true },
   { name: 'profile_image_url', type: 'TEXT', nullable: true },
+  { name: 'email_verified', type: 'TEXT', nullable: false, defaultValue: "'false'" },
+  { name: 'email_verified_at', type: 'TEXT', nullable: true },
   { name: 'created_at', type: 'TEXT', nullable: true, defaultValue: "(datetime('now'))" },
   { name: 'updated_at', type: 'TEXT', nullable: true, defaultValue: "(datetime('now'))" }
 ];
@@ -754,6 +756,8 @@ function initializeSchema(sqliteInstance: Database.Database): void {
         "first_name" TEXT,
         "last_name" TEXT,
         "profile_image_url" TEXT,
+        "email_verified" TEXT NOT NULL DEFAULT 'false',
+        "email_verified_at" TEXT,
         "created_at" TEXT DEFAULT (datetime('now')),
         "updated_at" TEXT DEFAULT (datetime('now'))
       );
