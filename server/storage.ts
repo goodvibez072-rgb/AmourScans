@@ -395,6 +395,15 @@ const USERS_EXPECTED_COLUMNS: ColumnDefinition[] = [
   { name: 'profile_image_url', type: 'TEXT', nullable: true },
   { name: 'email_verified', type: 'TEXT', nullable: false, defaultValue: "'false'" },
   { name: 'email_verified_at', type: 'TEXT', nullable: true },
+  { name: 'currency_balance', type: 'INTEGER', nullable: true, defaultValue: '0' },
+  { name: 'stripe_customer_id', type: 'TEXT', nullable: true },
+  { name: 'is_banned', type: 'TEXT', nullable: false, defaultValue: "'false'" },
+  { name: 'ban_reason', type: 'TEXT', nullable: true },
+  { name: 'banned_by', type: 'TEXT', nullable: true },
+  { name: 'banned_at', type: 'TEXT', nullable: true },
+  { name: 'ban_expires_at', type: 'TEXT', nullable: true },
+  { name: 'last_login_at', type: 'TEXT', nullable: true },
+  { name: 'login_count', type: 'INTEGER', nullable: true, defaultValue: '0' },
   { name: 'created_at', type: 'TEXT', nullable: true, defaultValue: "(datetime('now'))" },
   { name: 'updated_at', type: 'TEXT', nullable: true, defaultValue: "(datetime('now'))" }
 ];
