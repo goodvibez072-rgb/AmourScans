@@ -109,8 +109,7 @@ function safeDatabaseBackup(dbFilePath: string, reason: string): string {
         
         // Now move the original corrupted file to allow fresh database creation
         const corruptedMovePath = `${dbFilePath}.corrupted-${timestamp}`;
-        const fs = require('fs');
-        fs.renameSync(dbFilePath, corruptedMovePath);
+        import('fs').then(fs => fs.renameSync(dbFilePath, corruptedMovePath));
         console.log(`[data-protection] 🗑️  Moved corrupted file to: ${corruptedMovePath}`);
         console.log(`[data-protection] 💡 Recovery can now create fresh database at: ${dbFilePath}`);
         
@@ -427,6 +426,12 @@ const SERIES_EXPECTED_COLUMNS: ColumnDefinition[] = [
   { name: 'is_trending', type: 'TEXT', nullable: false, defaultValue: "'false'" },
   { name: 'is_popular_today', type: 'TEXT', nullable: false, defaultValue: "'false'" },
   { name: 'is_latest_update', type: 'TEXT', nullable: false, defaultValue: "'false'" },
+  { name: 'is_pinned', type: 'TEXT', nullable: false, defaultValue: "'false'" },
+  { name: 'meta_title', type: 'TEXT', nullable: true },
+  { name: 'meta_description', type: 'TEXT', nullable: true },
+  { name: 'canonical_url', type: 'TEXT', nullable: true },
+  { name: 'robots_noindex', type: 'TEXT', nullable: false, defaultValue: "'false'" },
+  { name: 'seo_keywords', type: 'TEXT', nullable: true },
   { name: 'created_at', type: 'TEXT', nullable: true, defaultValue: "(datetime('now'))" },
   { name: 'updated_at', type: 'TEXT', nullable: true, defaultValue: "(datetime('now'))" }
 ];
@@ -792,6 +797,12 @@ function initializeSchema(sqliteInstance: Database.Database): void {
         "is_trending" TEXT NOT NULL DEFAULT 'false',
         "is_popular_today" TEXT NOT NULL DEFAULT 'false',
         "is_latest_update" TEXT NOT NULL DEFAULT 'false',
+        "is_pinned" TEXT NOT NULL DEFAULT 'false',
+        "meta_title" TEXT,
+        "meta_description" TEXT,
+        "canonical_url" TEXT,
+        "robots_noindex" TEXT NOT NULL DEFAULT 'false',
+        "seo_keywords" TEXT,
         "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
         "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP
       );
@@ -1304,7 +1315,7 @@ function initializeMainDatabase(): { sqlite: Database.Database; db: ReturnType<t
       
       // Wait a bit before retrying
       console.log('[database] ⏳ Waiting before retry...');
-      require('child_process').execSync('sleep 1');
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1000);
     }
   }
   
