@@ -4398,6 +4398,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const results = await storage.searchSeries(searchQuery, filters, isBrowseMode);
       
+      // Public search results can be briefly cached - they don't contain user-specific data
+      res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
       res.json({
         query: searchQuery,
         filters,
