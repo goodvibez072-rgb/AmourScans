@@ -12,8 +12,10 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      # DATABASE_PATH uses a relative path so it works on free tier (no persistent disk needed)
+      # Data will reset on each deploy, but the app will always work
       - key: DATABASE_PATH
-        value: /data/database.db
+        value: ./data/database.db
       # PORT is automatically set by Render - do not override
       - key: PRODUCTION_URL
         sync: false  # Set in Render dashboard to your actual URL (e.g., https://amourscans.onrender.com)
@@ -28,13 +30,6 @@ services:
       # - GOOGLE_CLIENT_SECRET (for OAuth)
       # - DISCORD_CLIENT_ID (for OAuth)
       # - DISCORD_CLIENT_SECRET (for OAuth)
-    
-    # Persistent disk for SQLite database
-    # CRITICAL: This is required for SQLite database persistence
-    disk:
-      name: amourscans-data
-      mountPath: /data
-      sizeGB: 1  # Free tier allows 1GB
 
     # Health check configuration
     healthCheckPath: /api/health
@@ -45,15 +40,14 @@ services:
     # Region (can be oregon, frankfurt, singapore, ohio)
     region: oregon
 
-# Database Management Notes:
-# 1. The /data directory is persisted across deployments
-# 2. Database file will be created automatically at /data/database.db
-# 3. To access the database, use Render Shell: https://render.com/docs/shell
-# 4. Backup strategy: Use the db:backup script via Render Shell
+# Note: Persistent disk requires a paid Render plan.
+# On the free plan, the database is stored at ./data/database.db (relative to the app).
+# The data resets on each redeploy, but the app will always function correctly.
+# To keep data between deploys, upgrade to a paid Render plan and re-add the disk config.
 
 # Deployment Instructions:
 # 1. Create Render account: https://dashboard.render.com/register
-# 2. Click "New +" → "Blueprint"
+# 2. Click "New +" -> "Blueprint"
 # 3. Connect your GitHub repository
 # 4. Select this render.yaml file
 # 5. Set environment variables in the dashboard
@@ -64,5 +58,4 @@ services:
 # Important Notes:
 # - Free tier spins down after 15 minutes of inactivity
 # - First request after spin-down will be slow (cold start)
-# - Persistent disk ensures database survives deployments
-# - Upgrade to paid plan for always-on service and faster performance
+# - Upgrade to paid plan for always-on service and persistent data storage
