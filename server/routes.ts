@@ -4362,6 +4362,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      res.setHeader('Cache-Control', 'public, max-age=120, stale-while-revalidate=600');
       res.json({
         accessType: accessControl.accessType,
         unlockCost: accessControl.unlockCost,
@@ -5473,6 +5474,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const followerCount = await storage.getSeriesFollowerCount(seriesId);
+      res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
       res.json({ count: followerCount });
     } catch (error) {
       console.error("Error getting follower count:", error);
@@ -5720,6 +5722,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const ratings = await storage.getSeriesRatings(seriesId);
+      res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
       res.json(ratings);
     } catch (error) {
       console.error("Error fetching series ratings:", error);
@@ -5745,6 +5748,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         average: Math.round(average * 10) / 10,
         count: ratings.length
       };
+      res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
       res.json(stats);
     } catch (error) {
       console.error("Error fetching rating stats:", error);
@@ -6195,6 +6199,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const comments = await storage.getCommentsBySeriesId(seriesId);
+      res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
       res.json(comments);
     } catch (error) {
       console.error("Error fetching series comments:", error);
@@ -6213,6 +6218,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const comments = await storage.getCommentsByChapterId(chapterId);
+      res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
       res.json(comments);
     } catch (error) {
       console.error("Error fetching chapter comments:", error);
@@ -7129,6 +7135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const ads = await storage.getActiveAdsByPlacement(page, location, context);
+      res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
       res.json(ads);
     } catch (error) {
       console.error("Error fetching ads by placement:", error);
@@ -8029,6 +8036,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       const structuredRewards = Array.from(tierMap.values()).sort((a, b) => a.level - b.level);
+      res.setHeader('Cache-Control', 'public, max-age=120, stale-while-revalidate=600');
       res.json(structuredRewards);
     } catch (error) {
       console.error("Error fetching rewards:", error);
