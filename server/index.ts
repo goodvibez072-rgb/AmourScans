@@ -1,5 +1,3 @@
-import { createBrotliCompress, createGzip, constants } from "zlib";
-import { Writable, pipeline } from "stream";
 
 // ⚠️ CRITICAL: Global error handlers MUST be at TOP of file, registered BEFORE any internal imports
 // These catch ANY error that would otherwise crash the process silently
@@ -165,165 +163,6 @@ async function bootstrap() {
       }
     }));
 
-    // PERFORMANCE FIX: TRUE Streaming Brotli/gzip compression middleware
-    // This reduces data transfer by 70-80% (720KB -> ~200KB)
-    // Uses Node's native zlib streaming compression with proper backpressure handling
-    // NOTE: Only enabled in production to avoid interfering with Vite HMR in development
-    app.use((req, res, next) => {
-      // Skip compression entirely in development mode
-      if (process.env.NODE_ENV !== 'production') {
-        return next();
-      }
-
-      // Case-insensitive Accept-Encoding parsing
-      const acceptEncoding = (req.headers['accept-encoding'] || '').toLowerCase();
-      
-      // Skip compression if disabled or already encoded
-      if (req.headers['x-no-compression'] || res.getHeader('Content-Encoding')) {
-        return next();
-      }
-
-      // Determine compression method: prefer Brotli, fallback to gzip
-      let compressionMethod = null;
-      if (acceptEncoding.includes('br')) {
-        compressionMethod = 'br';
-      } else if (acceptEncoding.includes('gzip')) {
-        compressionMethod = 'gzip';
-      }
-
-      // No compression support
-      if (!compressionMethod) {
-        return next();
-      }
-
-      // Compressible content types (text, JSON, JS, CSS, HTML)
-      const compressibleTypes = /text\/|application\/json|application\/javascript|application\/xml/;
-      
-      // Store original methods before any overrides
-      const originalWrite = res.write.bind(res);
-      const originalEnd = res.end.bind(res);
-      const originalSetHeader = res.setHeader.bind(res);
-      
-      let compressionStream = null;
-      let compressionInitialized = false;
-
-      // Override setHeader to check content-type and initialize compression IMMEDIATELY
-      res.setHeader = function(name, value) {
-        const result = originalSetHeader(name, value);
-        
-        if (name.toLowerCase() === 'content-type' && !compressionInitialized) {
-          const shouldCompress = compressibleTypes.test(String(value));
-          
-          if (shouldCompress) {
-            // Initialize compression stream IMMEDIATELY (not at end)
-            compressionInitialized = true;
-            
-            if (compressionMethod === 'br') {
-              compressionStream = createBrotliCompress({
-                params: {
-                  [constants.BROTLI_PARAM_QUALITY]: 6
-                }
-              });
-            } else {
-              compressionStream = createGzip({ level: 6 });
-            }
-
-            // Create a writable stream that wraps the original response write/end
-            // This allows pipeline to properly handle backpressure
-            const destStream = new Writable({
-              write(chunk, encoding, callback) {
-                const canContinue = originalWrite(chunk, encoding);
-                if (canContinue) {
-                  callback();
-                } else {
-                  // Backpressure: wait for drain event before telling pipeline to continue
-                  res.once('drain', () => callback());
-                }
-              },
-              final(callback) {
-                originalEnd();
-                callback();
-              }
-            });
-
-            // Use pipeline for automatic backpressure handling
-            // When destStream can't accept more data, pipeline pauses compressionStream
-            pipeline(compressionStream, destStream, (err) => {
-              if (err) {
-                console.error('Compression pipeline error:', err);
-              }
-            });
-
-            // Propagate 'drain' events from compressionStream to res for user-level backpressure
-            compressionStream.on('drain', () => {
-              res.emit('drain');
-            });
-
-            // Set compression headers BEFORE first write
-            originalSetHeader('Content-Encoding', compressionMethod);
-            originalSetHeader('Vary', 'Accept-Encoding');
-            res.removeHeader('Content-Length');
-          }
-        }
-        
-        return result;
-      };
-
-      // Override write to pipe through compression stream with PROPER BACKPRESSURE
-      res.write = function(chunk, encoding, callback) {
-        if (compressionStream) {
-          // Handle overloaded signatures: write(chunk, callback) or write(chunk, encoding, callback)
-          if (typeof encoding === 'function') {
-            callback = encoding;
-            encoding = undefined;
-          }
-          // Forward ALL parameters to compressionStream
-          return compressionStream.write(chunk, encoding, callback);
-        } else {
-          // No compression - use original write with proper parameter forwarding
-          if (typeof encoding === 'function') {
-            return originalWrite(chunk, encoding);
-          }
-          return originalWrite(chunk, encoding, callback);
-        }
-      };
-
-      // Override end to finalize compression
-      res.end = function(chunk, encoding, callback) {
-        if (compressionStream) {
-          // Handle overloaded signatures: end(), end(chunk), end(chunk, encoding), end(chunk, encoding, callback)
-          if (typeof chunk === 'function') {
-            callback = chunk;
-            chunk = undefined;
-            encoding = undefined;
-          } else if (typeof encoding === 'function') {
-            callback = encoding;
-            encoding = undefined;
-          }
-          // Forward ALL parameters to compressionStream
-          compressionStream.end(chunk, encoding, callback);
-        } else {
-          // No compression - use original end with proper parameter forwarding
-          if (typeof chunk === 'function') {
-            originalEnd(chunk);
-          } else if (typeof encoding === 'function') {
-            originalEnd(chunk, encoding);
-          } else if (callback) {
-            originalEnd(chunk, encoding, callback);
-          } else if (encoding !== undefined) {
-            originalEnd(chunk, encoding);
-          } else if (chunk !== undefined) {
-            originalEnd(chunk);
-          } else {
-            originalEnd();
-          }
-        }
-
-        return res;
-      };
-
-      next();
-    });
 
     // Stripe webhook MUST be before express.json() to preserve raw body for signature verification
     const { default: Stripe } = await import("stripe");
@@ -508,7 +347,6 @@ async function bootstrap() {
       const message = err.message || "Internal Server Error";
 
       res.status(status).json({ message });
-      throw err;
     });
 
     // importantly only setup vite in development and after
