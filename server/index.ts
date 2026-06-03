@@ -257,12 +257,12 @@ async function bootstrap() {
         res.json({ received: true });
       } catch (error) {
         console.error("Error processing webhook:", error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: "Webhook processing failed" });
       }
     });
 
-    app.use(express.default.json());
-    app.use(express.default.urlencoded({ extended: false }));
+    app.use(express.default.json({ limit: '1mb' }));
+    app.use(express.default.urlencoded({ extended: false, limit: '1mb' }));
 
     // CSRF FIX: Add cookie-parser middleware (required by csrf-csrf library)
     app.use(cookieParser());
