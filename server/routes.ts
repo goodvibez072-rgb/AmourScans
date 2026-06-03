@@ -5512,7 +5512,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(list);
     } catch (error: any) {
       console.error("Error creating reading list:", error);
-      res.status(500).json({ message: error.message || "Internal server error" });
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 
@@ -5537,7 +5537,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updated);
     } catch (error: any) {
       console.error("Error updating reading list:", error);
-      res.status(500).json({ message: error.message || "Internal server error" });
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 
@@ -5589,7 +5589,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(item);
     } catch (error: any) {
       console.error("Error adding to reading list:", error);
-      res.status(500).json({ message: error.message || "Internal server error" });
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 
