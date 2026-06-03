@@ -5849,7 +5849,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/backup", adminAuth, doubleCsrfProtection, async (req, res) => {
     try {
       const { spawn } = await import('child_process');
-      const backupName = req.body.name || 'admin-backup';
+      // Sanitize backup name: allow only alphanumeric, dashes and underscores
+      const rawName = String(req.body.name || 'admin-backup');
+      const backupName = rawName.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 64) || 'admin-backup';
       
       // Execute the backup script
       const backup = spawn('npx', ['tsx', 'scripts/db-backup.ts', backupName], {
@@ -5879,10 +5881,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             timestamp: new Date().toISOString()
           });
         } else {
-          console.error("Backup script error:", errorOutput);
+          console.error("Backup script stderr:", errorOutput);
           res.status(500).json({ 
-            message: "Failed to create backup",
-            error: errorOutput || "Backup process failed"
+            message: "Failed to create backup"
           });
         }
       });
@@ -5890,8 +5891,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       backup.on('error', (error) => {
         console.error("Backup spawn error:", error);
         res.status(500).json({ 
-          message: "Failed to start backup process",
-          error: error.message
+          message: "Failed to start backup process"
         });
       });
 
@@ -7130,7 +7130,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // POST /api/ads/:id/click - Track ad click (public)
-  app.post("/api/ads/:id/click", async (req, res) => {
+  app.post("/api/ads/:id/click", actionLimiter, async (req, res) => {
     try {
       const { id } = req.params;
       const success = await storage.trackAdClick(id);
@@ -7147,7 +7147,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // POST /api/ads/:id/impression - Track ad impression (public)
-  app.post("/api/ads/:id/impression", async (req, res) => {
+  app.post("/api/ads/:id/impression", actionLimiter, async (req, res) => {
     try {
       const { id } = req.params;
       const success = await storage.trackAdImpression(id);
