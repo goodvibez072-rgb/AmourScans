@@ -464,7 +464,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check local session authentication
       if (req.session?.user) {
         // Get the user from database to check role and isAdmin flag
-        const user = await storage.getUserByUsername(req.session.user.username);
+        const user = await storage.getUserById(req.session.userId);
         if (user) {
           // Check if user is banned
           if (user.isBanned === 'true') {
@@ -522,7 +522,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check local session authentication
       if (req.session?.user) {
         // Get full user data from database to get proper admin flag
-        const user = await storage.getUserByUsername(req.session.user.username);
+        const user = await storage.getUserById(req.session.userId);
         if (user) {
           // Check if user is banned
           if (user.isBanned === 'true') {
@@ -605,8 +605,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const saltRounds = 12;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-      // Create user with all provided fields
-      console.log("Creating user with data:", { username, email, profilePicture: profilePicture ? "DATA_PROVIDED" : null, country });
       const user = await storage.createUser({
         username,
         password: hashedPassword,
@@ -614,7 +612,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         profilePicture: profilePicture || null,
         country: country || null
       });
-      console.log("Created user:", { ...user, password: "HIDDEN" });
 
       // Log signup event
       await auditLogger.logFromRequest(req, {
@@ -920,7 +917,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1269,7 +1266,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1325,7 +1322,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      const currentUser = await storage.getUserByUsername(req.session.user.username);
+      const currentUser = await storage.getUserById(req.session.userId);
       if (!currentUser) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1368,7 +1365,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "No image file provided" });
       }
 
-      const currentUser = await storage.getUserByUsername(req.session.user.username);
+      const currentUser = await storage.getUserById(req.session.userId);
       if (!currentUser) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1444,7 +1441,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { oldPassword, newPassword } = validationResult.data;
 
-      const currentUser = await storage.getUserByUsername(req.session.user.username);
+      const currentUser = await storage.getUserById(req.session.userId);
       if (!currentUser || !currentUser.password) {
         return res.status(404).json({ message: "User not found or password not set" });
       }
@@ -1663,7 +1660,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!req.session.user?.username) {
         return res.status(401).json({ message: "Unauthorized" });
       }
-      const currentUser = await storage.getUserByUsername(req.session.user.username);
+      const currentUser = await storage.getUserById(req.session.userId);
       if (!currentUser) {
         return res.status(401).json({ message: "Unauthorized" });
       }
@@ -1802,7 +1799,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/series", isStaff, doubleCsrfProtection, async (req: any, res) => {
     try {
       // Series creation requires admin or owner role (not staff)
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -1982,7 +1979,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/admin/series/:id", adminAuth, doubleCsrfProtection, async (req: any, res) => {
     try {
       // Series deletion requires admin or owner role (not staff)
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -4787,7 +4784,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!req.session.user?.username) {
         return res.status(401).json({ message: "Unauthorized" });
       }
-      const currentUser = await storage.getUserByUsername(req.session.user.username);
+      const currentUser = await storage.getUserById(req.session.userId);
       if (!currentUser) {
         return res.status(401).json({ message: "Unauthorized" });
       }
@@ -4893,7 +4890,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!req.session.user?.username) {
         return res.status(401).json({ message: "Unauthorized" });
       }
-      const currentUser = await storage.getUserByUsername(req.session.user.username);
+      const currentUser = await storage.getUserById(req.session.userId);
       if (!currentUser) {
         return res.status(401).json({ message: "Unauthorized" });
       }
@@ -4942,7 +4939,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!req.session.user?.username) {
         return res.status(401).json({ message: "Unauthorized" });
       }
-      const currentUser = await storage.getUserByUsername(req.session.user.username);
+      const currentUser = await storage.getUserById(req.session.userId);
       if (!currentUser) {
         return res.status(401).json({ message: "Unauthorized" });
       }
@@ -4986,7 +4983,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!req.session.user?.username) {
         return res.status(401).json({ message: "Unauthorized" });
       }
-      const currentUser = await storage.getUserByUsername(req.session.user.username);
+      const currentUser = await storage.getUserById(req.session.userId);
       if (!currentUser) {
         return res.status(401).json({ message: "Unauthorized" });
       }
@@ -5061,7 +5058,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!req.session.user?.username) {
         return res.status(401).json({ message: "Unauthorized" });
       }
-      const currentUser = await storage.getUserByUsername(req.session.user.username);
+      const currentUser = await storage.getUserById(req.session.userId);
       if (!currentUser) {
         return res.status(401).json({ message: "Unauthorized" });
       }
@@ -5192,7 +5189,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid status" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       
       if (!user) {
         return res.status(401).json({ message: "User not found" });
@@ -5232,7 +5229,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid status" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       
       if (!user) {
         return res.status(401).json({ message: "User not found" });
@@ -5258,7 +5255,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { seriesId } = req.params;
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       
       if (!user) {
         return res.status(401).json({ message: "User not found" });
@@ -5283,7 +5280,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       
       if (!user) {
         return res.status(401).json({ message: "User not found" });
@@ -5304,7 +5301,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { seriesId } = req.params;
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       
       if (!user) {
         return res.status(401).json({ message: "User not found" });
@@ -5327,7 +5324,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { seriesId } = req.params;
       const { notificationsEnabled } = req.body;
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       
       if (!user) {
         return res.status(401).json({ message: "User not found" });
@@ -5360,7 +5357,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { seriesId } = req.params;
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       
       if (!user) {
         return res.status(401).json({ message: "User not found" });
@@ -5385,7 +5382,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       
       if (!user) {
         return res.status(401).json({ message: "User not found" });
@@ -5406,7 +5403,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { seriesId } = req.params;
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       
       if (!user) {
         return res.status(401).json({ message: "User not found" });
@@ -5441,7 +5438,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const { enabled } = validation.data;
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       
       if (!user) {
         return res.status(401).json({ message: "User not found" });
@@ -5486,7 +5483,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -5506,7 +5503,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -5527,7 +5524,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { listId } = req.params;
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -5552,7 +5549,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { listId } = req.params;
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -5583,7 +5580,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Series ID is required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -5604,7 +5601,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { listId, seriesId } = req.params;
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -5636,7 +5633,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(401).json({ message: "Authentication required" });
         }
 
-        const user = await storage.getUserByUsername(req.session.user.username);
+        const user = await storage.getUserById(req.session.userId);
         if (!user || list.userId !== user.id) {
           return res.status(403).json({ message: "Access denied" });
         }
@@ -5671,7 +5668,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Series not found" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -5692,7 +5689,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { seriesId } = req.params;
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       
       if (!user) {
         return res.status(401).json({ message: "User not found" });
@@ -5757,7 +5754,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { seriesId } = req.params;
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       
       if (!user) {
         return res.status(401).json({ message: "User not found" });
@@ -6228,7 +6225,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { seriesId } = req.params;
       const { chapterId, lastReadPage } = req.body;
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -6260,7 +6257,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { seriesId } = req.params;
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       
       if (!user) {
         return res.status(401).json({ message: "User not found" });
@@ -6286,7 +6283,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       
       if (!user) {
         return res.status(401).json({ message: "User not found" });
@@ -6308,7 +6305,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { seriesId } = req.params;
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       
       if (!user) {
         return res.status(401).json({ message: "User not found" });
@@ -6359,7 +6356,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Series not found" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -6409,7 +6406,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Chapter not found" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -6450,7 +6447,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -6494,7 +6491,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { id } = req.params;
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -6543,7 +6540,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -6563,7 +6560,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -6622,7 +6619,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const admin = await storage.getUserByUsername(req.session.user.username);
+      const admin = await storage.getUserById(req.session.userId);
       if (!admin) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -6669,7 +6666,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const admin = await storage.getUserByUsername(req.session.user.username);
+      const admin = await storage.getUserById(req.session.userId);
       if (!admin) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -6716,7 +6713,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const admin = await storage.getUserByUsername(req.session.user.username);
+      const admin = await storage.getUserById(req.session.userId);
       if (!admin) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -6741,7 +6738,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const admin = await storage.getUserByUsername(req.session.user.username);
+      const admin = await storage.getUserById(req.session.userId);
       if (!admin) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -6766,7 +6763,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const admin = await storage.getUserByUsername(req.session.user.username);
+      const admin = await storage.getUserById(req.session.userId);
       if (!admin) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -6826,7 +6823,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const admin = await storage.getUserByUsername(req.session.user.username);
+      const admin = await storage.getUserById(req.session.userId);
       if (!admin) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -6858,7 +6855,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const admin = await storage.getUserByUsername(req.session.user.username);
+      const admin = await storage.getUserById(req.session.userId);
       if (!admin) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -6897,7 +6894,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const admin = await storage.getUserByUsername(req.session.user.username);
+      const admin = await storage.getUserById(req.session.userId);
       if (!admin) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -7109,7 +7106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const deviceType = userAgent.match(/(mobile|tablet|ipad|iphone|android)/i) ? 
         (userAgent.match(/(tablet|ipad)/i) ? 'tablet' : 'mobile') : 'desktop';
       
-      const user = req.session?.user ? await storage.getUserByUsername(req.session.user.username) : null;
+      const user = req.session?.user ? await storage.getUserById(req.session.userId) : null;
       const userRole = user?.role || 'user';
       const userCountry = user?.country || null;
       
@@ -7539,7 +7536,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -7596,7 +7593,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -7630,7 +7627,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -7650,7 +7647,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -7720,7 +7717,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -7752,7 +7749,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -7813,7 +7810,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -7844,7 +7841,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -7882,7 +7879,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -7949,7 +7946,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -8038,7 +8035,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -8391,7 +8388,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const admin = await storage.getUserByUsername(req.session.user.username);
+      const admin = await storage.getUserById(req.session.userId);
       if (!admin) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -8556,7 +8553,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -8576,7 +8573,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -8609,7 +8606,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -8631,7 +8628,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -8651,7 +8648,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -8671,7 +8668,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -8813,7 +8810,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -8844,7 +8841,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -8864,7 +8861,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -8886,7 +8883,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -8930,7 +8927,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -8950,7 +8947,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -8973,7 +8970,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const user = await storage.getUserByUsername(req.session.user.username);
+      const user = await storage.getUserById(req.session.userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -9494,7 +9491,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const role = await storage.createRole(validatedData);
       
       // Get current user for broadcast
-      const currentUser = await storage.getUserByUsername(req.session.user.username);
+      const currentUser = await storage.getUserById(req.session.userId);
       
       // Broadcast role creation event for real-time updates
       broadcast.role({
@@ -9523,7 +9520,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Get current user for broadcast
-      const currentUser = await storage.getUserByUsername(req.session.user.username);
+      const currentUser = await storage.getUserById(req.session.userId);
       
       // Broadcast role update event for real-time updates
       broadcast.role({
@@ -9551,7 +9548,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Get current user for broadcast
-      const currentUser = await storage.getUserByUsername(req.session.user.username);
+      const currentUser = await storage.getUserById(req.session.userId);
       
       // Broadcast role deletion event for real-time updates
       broadcast.role({
@@ -9592,7 +9589,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Get current user for broadcast
-      const currentUser = await storage.getUserByUsername(req.session.user.username);
+      const currentUser = await storage.getUserById(req.session.userId);
       
       // Broadcast role permissions update event for real-time updates
       broadcast.role({

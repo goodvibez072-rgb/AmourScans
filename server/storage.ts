@@ -177,6 +177,7 @@ function deserializeJson(str: string | null): any {
 export interface IStorage {
   // User operations for legacy auth
   getUser(id: string): Promise<User | undefined>;
+  getUserById(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
