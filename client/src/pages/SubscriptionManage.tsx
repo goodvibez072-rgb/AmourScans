@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { Crown, AlertCircle, Check, X, CreditCard, Calendar, TrendingUp, ArrowLeft } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { queryClient } from "@/lib/queryClient";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,20 +56,7 @@ export default function SubscriptionManage() {
 
   const cancelMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch("/api/subscriptions/cancel", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest",
-        },
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to cancel subscription");
-      }
-
+      const response = await apiRequest("POST", "/api/subscriptions/cancel");
       return response.json();
     },
     onSuccess: () => {
@@ -90,20 +78,7 @@ export default function SubscriptionManage() {
 
   const reactivateMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch("/api/subscriptions/reactivate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest",
-        },
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to reactivate subscription");
-      }
-
+      const response = await apiRequest("POST", "/api/subscriptions/reactivate");
       return response.json();
     },
     onSuccess: () => {
@@ -169,6 +144,11 @@ export default function SubscriptionManage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900">
+      <SEO
+        title="Manage Subscription | AmourScans"
+        description="View and manage your AmourScans premium subscription. Cancel, upgrade, or reactivate your plan at any time."
+        keywords="subscription management, premium plan, cancel subscription, amourscans premium"
+      />
       <Navigation />
       
       <div className="max-w-4xl mx-auto px-4 py-16">

@@ -3,6 +3,8 @@ import { useLocation } from "wouter";
 import { History as HistoryIcon, BookOpen, Clock, Trash2, ArrowLeft } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -122,6 +124,11 @@ export default function History() {
 
   return (
     <div className="min-h-screen bg-background w-full overflow-x-hidden">
+      <SEO
+        title="Reading History | AmourScans"
+        description="Your manga and manhwa reading history on AmourScans. Continue where you left off and track your reading progress across all series."
+        keywords="reading history, manga progress, continue reading, manhwa history"
+      />
       <Navigation />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -342,6 +349,8 @@ export default function History() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Footer />
     </div>
   );
 }

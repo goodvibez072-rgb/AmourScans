@@ -2129,6 +2129,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const enabled = enabledSetting ? enabledSetting.value === 'true' : true;
       const mode = modeSetting ? modeSetting.value : 'enabled';
       
+      res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
       res.json({ 
         enabled,
         mode
@@ -2158,6 +2159,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         3: 'Heavy'
       };
       
+      res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
       res.json({ 
         level, 
         description: descriptions[level] || 'Moderate',
@@ -4213,6 +4215,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Series not found" });
       }
 
+      res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
       res.json(series);
     } catch (error) {
       console.error("Error fetching series:", error);
@@ -5170,6 +5173,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/series", async (req, res) => {
     try {
       const allSeries = await storage.getAllSeries();
+      res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
       res.json(allSeries);
     } catch (error) {
       console.error("Error fetching all series:", error);
@@ -6811,6 +6815,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const activeOnly = req.query.activeOnly !== 'false';
       const packages = await storage.getCurrencyPackages(activeOnly);
+      res.setHeader('Cache-Control', 'public, max-age=120, stale-while-revalidate=600');
       res.json(packages);
     } catch (error) {
       console.error("Error fetching currency packages:", error);
@@ -7615,6 +7620,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const activeOnly = req.query.activeOnly !== 'false';
       const packages = await storage.getSubscriptionPackages(activeOnly);
+      res.setHeader('Cache-Control', 'public, max-age=120, stale-while-revalidate=600');
       res.json(packages);
     } catch (error) {
       console.error("Error fetching subscription packages:", error);
@@ -8594,6 +8600,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/achievements", async (req: any, res) => {
     try {
       const achievements = await storage.getAllAchievements();
+      res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=900');
       res.json(achievements);
     } catch (error) {
       console.error("Error fetching achievements:", error);
@@ -8694,6 +8701,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/flash-sales/active", async (req: any, res) => {
     try {
       const sales = await storage.getActiveFlashSales();
+      res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
       res.json(sales);
     } catch (error) {
       console.error("Error fetching flash sales:", error);
@@ -8902,6 +8910,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/loyalty/tiers", async (req: any, res) => {
     try {
       const tiers = await storage.getLoyaltyTiers();
+      res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=900');
       res.json(tiers);
     } catch (error) {
       console.error("Error fetching loyalty tiers:", error);
@@ -8915,6 +8924,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/battle-pass/current-season", async (req: any, res) => {
     try {
       const season = await storage.getCurrentBattlePassSeason();
+      res.setHeader('Cache-Control', 'public, max-age=120, stale-while-revalidate=600');
       res.json(season || null);
     } catch (error) {
       console.error("Error fetching current season:", error);

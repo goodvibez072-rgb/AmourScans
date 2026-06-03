@@ -261,6 +261,10 @@ async function bootstrap() {
       }
     });
 
+    // PERFORMANCE: Compress all responses (gzip/deflate) - reduces payload size 60-80%
+    const { default: compression } = await import("compression");
+    app.use(compression());
+
     app.use(express.default.json({ limit: '1mb' }));
     app.use(express.default.urlencoded({ extended: false, limit: '1mb' }));
 
