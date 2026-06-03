@@ -47,8 +47,14 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
-// SECURITY FIX: CSRF token cache and fetching
+// SECURITY: CSRF token cache and fetching
+// The token is invalidated on login/logout so it always reflects the current session.
 let csrfToken: string | null = null;
+
+/** Call this after login or logout so the next mutation re-fetches a fresh token. */
+export function clearCsrfToken(): void {
+  csrfToken = null;
+}
 
 async function getCsrfToken(): Promise<string> {
   if (csrfToken) {

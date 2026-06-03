@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { signupUserSchema } from "@shared/schema";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, clearCsrfToken } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
@@ -56,6 +56,8 @@ export default function Signup() {
       return apiRequest("POST", "/api/auth/signup", data);
     },
     onSuccess: () => {
+      // Clear stale CSRF token so next request fetches one for the new session
+      clearCsrfToken();
       // Invalidate auth queries to ensure fresh state
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({

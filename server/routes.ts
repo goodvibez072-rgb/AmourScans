@@ -6707,7 +6707,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // GET /api/admin/currency/transactions - Get all currency transactions (admin only)
-  app.get("/api/admin/currency/transactions", async (req: any, res) => {
+  app.get("/api/admin/currency/transactions", adminAuth, async (req: any, res) => {
     try {
       if (!req.session?.user) {
         return res.status(401).json({ message: "Authentication required" });
@@ -6732,7 +6732,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // GET /api/admin/currency/stats - Get currency statistics (admin only)
-  app.get("/api/admin/currency/stats", async (req: any, res) => {
+  app.get("/api/admin/currency/stats", adminAuth, async (req: any, res) => {
     try {
       if (!req.session?.user) {
         return res.status(401).json({ message: "Authentication required" });

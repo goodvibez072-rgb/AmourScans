@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { loginUserSchema } from "@shared/schema";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, clearCsrfToken } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
@@ -50,6 +50,8 @@ export default function Login() {
       return apiRequest("POST", "/api/auth/login", data);
     },
     onSuccess: () => {
+      // Clear stale CSRF token so next request fetches one for the new session
+      clearCsrfToken();
       // Invalidate and refetch authentication and currency queries
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/currency/balance"] });

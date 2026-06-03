@@ -1,7 +1,7 @@
 // Replit Auth integration - useAuth hook
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { apiRequest, queryClient, getQueryFn } from "@/lib/queryClient";
+import { apiRequest, queryClient, getQueryFn, clearCsrfToken } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { SafeUserWithAdmin } from "@shared/schema";
 
@@ -38,6 +38,8 @@ export function useLogout() {
       return apiRequest("POST", "/api/auth/logout");
     },
     onSuccess: () => {
+      // Clear stale CSRF token so next request fetches one for the new session
+      clearCsrfToken();
       // Immediately clear user data for instant UI update
       queryClient.setQueryData(["/api/auth/user"], null);
       
