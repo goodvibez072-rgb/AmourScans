@@ -2,8 +2,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from "url";
-import { cartographer } from "@replit/vite-plugin-cartographer";
-import errorModal from "@replit/vite-plugin-runtime-error-modal";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,16 +10,23 @@ const __dirname = path.dirname(__filename);
 const isReplit = !!process.env.REPLIT_DEV_DOMAIN;
 const replitDomain = process.env.REPLIT_DEV_DOMAIN || 'localhost';
 
-export default defineConfig({
-  plugins: [
-    react(),
-    cartographer(),
-    errorModal(),
-  ],
+export default defineConfig(async () => {
+  const plugins = [react()];
+
+  // Only load Replit-specific plugins when running inside Replit.
+  // These plugins inject code that connects to Replit infrastructure;
+  // including them in a non-Replit production build causes a white screen.
+  if (isReplit) {
+    const { cartographer } = await import("@replit/vite-plugin-cartographer");
+    const { default: errorModal } = await import("@replit/vite-plugin-runtime-error-modal");
+    plugins.push(cartographer(), errorModal());
+  }
+
+  return {
+  plugins,
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client/src"),
-      "@db": path.resolve(__dirname, "./db"),
       "@shared": path.resolve(__dirname, "./shared"),
     },
   },
@@ -76,4 +81,5 @@ export default defineConfig({
     strictPort: true,
     allowedHosts: true,
   },
+  };
 });
