@@ -253,6 +253,22 @@ const initializePWA = async (): Promise<void> => {
   document.head.appendChild(style);
 };
 
+// Show a visible error on screen instead of a silent white page
+function showFatalError(error: unknown): void {
+  const msg = error instanceof Error ? error.message : String(error);
+  const stack = error instanceof Error ? (error.stack || '') : '';
+  const el = document.getElementById('root');
+  if (el) {
+    el.innerHTML = `
+      <div style="font-family:sans-serif;padding:2rem;background:#1a1a2e;color:#e2e8f0;min-height:100vh">
+        <h1 style="color:#f87171;margin-bottom:1rem">AmourScans failed to load</h1>
+        <p style="margin-bottom:0.5rem;color:#fca5a5">${msg}</p>
+        <pre style="background:#0f172a;padding:1rem;border-radius:8px;overflow:auto;font-size:12px;color:#94a3b8;white-space:pre-wrap">${stack}</pre>
+        <button onclick="location.reload()" style="margin-top:1rem;padding:0.5rem 1.5rem;background:#7c3aed;color:white;border:none;border-radius:6px;cursor:pointer">Reload</button>
+      </div>`;
+  }
+}
+
 // Initialize app and PWA
 const initializeApp = async (): Promise<void> => {
   try {
@@ -271,12 +287,7 @@ const initializeApp = async (): Promise<void> => {
     });
   } catch (error) {
     console.error('[PWA] App initialization failed:', error);
-    
-    // Fallback: try rendering app anyway
-    const rootElement = document.getElementById("root");
-    if (rootElement) {
-      createRoot(rootElement).render(<App />);
-    }
+    showFatalError(error);
   }
 };
 
