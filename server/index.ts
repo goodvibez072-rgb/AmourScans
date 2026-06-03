@@ -192,7 +192,7 @@ async function bootstrap() {
         }
       } catch (err) {
         console.error("Webhook signature verification failed:", err.message);
-        return res.status(400).send(`Webhook Error: ${err.message}`);
+        return res.status(400).send("Webhook Error: invalid signature");
       }
 
       try {
@@ -344,7 +344,10 @@ async function bootstrap() {
 
     app.use((err, _req, res, _next) => {
       const status = err.status || err.statusCode || 500;
-      const message = err.message || "Internal Server Error";
+      // Only surface the error message for client errors (4xx) that have an
+      // explicit status set; hide internal server error details from clients.
+      const isSafeClientError = status >= 400 && status < 500 && (err.status || err.statusCode);
+      const message = isSafeClientError ? (err.message || "Bad Request") : "Internal Server Error";
 
       res.status(status).json({ message });
     });
