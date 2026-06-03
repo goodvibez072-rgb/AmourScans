@@ -767,8 +767,8 @@ function initializeSchema(sqliteInstance: Database.Database): void {
         "profile_image_url" TEXT,
         "email_verified" TEXT NOT NULL DEFAULT 'false',
         "email_verified_at" TEXT,
-        "created_at" TEXT DEFAULT (datetime('now')),
-        "updated_at" TEXT DEFAULT (datetime('now'))
+        "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -792,8 +792,8 @@ function initializeSchema(sqliteInstance: Database.Database): void {
         "is_trending" TEXT NOT NULL DEFAULT 'false',
         "is_popular_today" TEXT NOT NULL DEFAULT 'false',
         "is_latest_update" TEXT NOT NULL DEFAULT 'false',
-        "created_at" TEXT DEFAULT (datetime('now')),
-        "updated_at" TEXT DEFAULT (datetime('now'))
+        "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -806,8 +806,8 @@ function initializeSchema(sqliteInstance: Database.Database): void {
         "native_name" TEXT NOT NULL,
         "is_active" TEXT NOT NULL DEFAULT 'true',
         "is_default" TEXT NOT NULL DEFAULT 'false',
-        "created_at" TEXT DEFAULT (datetime('now')),
-        "updated_at" TEXT DEFAULT (datetime('now'))
+        "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -819,8 +819,8 @@ function initializeSchema(sqliteInstance: Database.Database): void {
         "language_id" TEXT NOT NULL,
         "title" TEXT,
         "description" TEXT,
-        "created_at" TEXT DEFAULT (datetime('now')),
-        "updated_at" TEXT DEFAULT (datetime('now')),
+        "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY ("series_id") REFERENCES "series" ("id") ON DELETE CASCADE,
         FOREIGN KEY ("language_id") REFERENCES "languages" ("id") ON DELETE CASCADE,
         UNIQUE ("series_id", "language_id")
@@ -837,8 +837,8 @@ function initializeSchema(sqliteInstance: Database.Database): void {
         "type" TEXT NOT NULL DEFAULT 'string',
         "description" TEXT,
         "is_public" TEXT NOT NULL DEFAULT 'false',
-        "created_at" TEXT DEFAULT (datetime('now')),
-        "updated_at" TEXT DEFAULT (datetime('now'))
+        "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -848,7 +848,7 @@ function initializeSchema(sqliteInstance: Database.Database): void {
         "id" TEXT PRIMARY KEY NOT NULL,
         "user_id" TEXT NOT NULL,
         "series_id" TEXT NOT NULL,
-        "added_at" TEXT DEFAULT (datetime('now')),
+        "added_at" TEXT DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE,
         FOREIGN KEY ("series_id") REFERENCES "series" ("id") ON DELETE CASCADE,
         UNIQUE ("user_id", "series_id")
@@ -861,7 +861,7 @@ function initializeSchema(sqliteInstance: Database.Database): void {
         "id" TEXT PRIMARY KEY NOT NULL,
         "user_id" TEXT NOT NULL,
         "series_id" TEXT NOT NULL,
-        "followed_at" TEXT DEFAULT (datetime('now')),
+        "followed_at" TEXT DEFAULT CURRENT_TIMESTAMP,
         "notifications_enabled" TEXT NOT NULL DEFAULT 'true',
         FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE,
         FOREIGN KEY ("series_id") REFERENCES "series" ("id") ON DELETE CASCADE,
@@ -877,8 +877,8 @@ function initializeSchema(sqliteInstance: Database.Database): void {
         "series_id" TEXT,
         "chapter_id" TEXT,
         "content" TEXT NOT NULL,
-        "created_at" TEXT DEFAULT (datetime('now')),
-        "updated_at" TEXT DEFAULT (datetime('now')),
+        "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE,
         FOREIGN KEY ("series_id") REFERENCES "series" ("id") ON DELETE CASCADE,
         FOREIGN KEY ("chapter_id") REFERENCES "chapters" ("id") ON DELETE CASCADE
@@ -893,9 +893,9 @@ function initializeSchema(sqliteInstance: Database.Database): void {
         "series_id" TEXT NOT NULL,
         "chapter_id" TEXT,
         "last_read_page" INTEGER NOT NULL DEFAULT 0,
-        "last_read_at" TEXT DEFAULT (datetime('now')),
-        "created_at" TEXT DEFAULT (datetime('now')),
-        "updated_at" TEXT DEFAULT (datetime('now')),
+        "last_read_at" TEXT DEFAULT CURRENT_TIMESTAMP,
+        "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE,
         FOREIGN KEY ("series_id") REFERENCES "series" ("id") ON DELETE CASCADE,
         FOREIGN KEY ("chapter_id") REFERENCES "chapters" ("id") ON DELETE SET NULL,
@@ -914,8 +914,8 @@ function initializeSchema(sqliteInstance: Database.Database): void {
         "total_pages" INTEGER NOT NULL DEFAULT 0,
         "is_published" TEXT NOT NULL DEFAULT 'true',
         "uploaded_by" TEXT,
-        "created_at" TEXT DEFAULT (datetime('now')),
-        "updated_at" TEXT DEFAULT (datetime('now')),
+        "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY ("series_id") REFERENCES "series" ("id") ON DELETE CASCADE,
         FOREIGN KEY ("uploaded_by") REFERENCES "users" ("id"),
         UNIQUE ("series_id", "chapter_number")
@@ -953,8 +953,8 @@ function initializeSchema(sqliteInstance: Database.Database): void {
         "display_order" INTEGER NOT NULL DEFAULT 0,
         "click_count" INTEGER NOT NULL DEFAULT 0,
         "impression_count" INTEGER NOT NULL DEFAULT 0,
-        "created_at" TEXT DEFAULT (datetime('now')),
-        "updated_at" TEXT DEFAULT (datetime('now'))
+        "created_at" TEXT DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TEXT DEFAULT CURRENT_TIMESTAMP
       );
     `);
     
