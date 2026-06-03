@@ -63,10 +63,10 @@ export default defineConfig(async () => {
     // Disable source maps for smaller production builds
     sourcemap: false,
   },
-  // PERFORMANCE: Remove console logs in production via esbuild
-  esbuild: {
-    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
-  },
+  // NOTE: Do NOT strip console calls in production — doing so silences React's
+  // own error reporting and makes runtime crashes completely invisible (white screen
+  // with no diagnosis). Keep esbuild.drop empty for all environments.
+  esbuild: {},
   // PERFORMANCE: Optimize dependencies
   optimizeDeps: {
     include: [
