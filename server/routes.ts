@@ -2119,7 +2119,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ===== SETTINGS MANAGEMENT API ENDPOINTS =====
-  
+
+  // GET /api/settings/system - Get system settings by keys (public endpoint for client-side feature flags)
+  app.get("/api/settings/system", async (req, res) => {
+    try {
+      const keys = req.query.keys;
+      const keyList: string[] = Array.isArray(keys)
+        ? (keys as string[])
+        : typeof keys === 'string'
+        ? [keys]
+        : [];
+
+      if (keyList.length === 0) {
+        return res.status(400).json({ message: "At least one key is required" });
+      }
+
+      const result: Record<string, { key: string; value: string; type: string }> = {};
+      await Promise.all(
+        keyList.map(async (key) => {
+          const setting = await storage.getSetting('system', key);
+          if (setting) {
+            result[key] = { key: setting.key, value: setting.value, type: setting.type || 'string' };
+          }
+        })
+      );
+
+      res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+      res.json(result);
+    } catch (error) {
+      console.error("Error fetching system settings:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // GET /api/settings/public/shop-status - Get shop enabled status and mode (public endpoint)
   app.get("/api/settings/public/shop-status", async (req, res) => {
     try {
