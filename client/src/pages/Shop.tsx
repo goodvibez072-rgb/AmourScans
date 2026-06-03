@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Coins, Crown, Trophy, Zap, Star, Lock, Sparkles, Clock, Check, X, ShoppingCart, ArrowLeft, Loader2, Wrench } from "lucide-react";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -789,6 +790,7 @@ export default function Shop() {
           </div>
         </DialogContent>
       </Dialog>
+      <Footer />
     </div>
   );
 }

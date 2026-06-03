@@ -5125,6 +5125,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/sections/featured", async (req, res) => {
     try {
       const featuredSeries = await storage.getSeriesBySection("featured");
+      res.setHeader('Cache-Control', 'public, max-age=120, stale-while-revalidate=600');
       res.json(featuredSeries);
     } catch (error) {
       console.error("Error fetching featured series:", error);
@@ -5135,6 +5136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/sections/trending", async (req, res) => {
     try {
       const trendingSeries = await storage.getSeriesBySection("trending");
+      res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
       res.json(trendingSeries);
     } catch (error) {
       console.error("Error fetching trending series:", error);
@@ -5145,6 +5147,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/sections/popular-today", async (req, res) => {
     try {
       const popularSeries = await storage.getSeriesBySection("popularToday");
+      res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
       res.json(popularSeries);
     } catch (error) {
       console.error("Error fetching popular today series:", error);
@@ -5155,6 +5158,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/sections/latest-updates", async (req, res) => {
     try {
       const latestSeries = await storage.getSeriesBySection("latestUpdate");
+      res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
       res.json(latestSeries);
     } catch (error) {
       console.error("Error fetching latest updates series:", error);
@@ -5165,6 +5169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/sections/pinned", async (req, res) => {
     try {
       const pinnedSeries = await storage.getSeriesBySection("pinned");
+      res.setHeader('Cache-Control', 'public, max-age=120, stale-while-revalidate=600');
       res.json(pinnedSeries);
     } catch (error) {
       console.error("Error fetching pinned series:", error);
