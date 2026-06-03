@@ -207,8 +207,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup OAuth (Google & Discord)
   await setupOAuth(app);
 
-  // Serve static files for uploaded images
-  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+  // Serve static files for uploaded images (1 year cache for immutable assets)
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'), {
+    maxAge: '1y',
+    immutable: true,
+    etag: true,
+    lastModified: true,
+  }));
 
   // Health check endpoint for Fly.io and monitoring services
   // Returns 200 OK if the server is running and database is accessible
