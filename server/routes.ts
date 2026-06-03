@@ -7799,7 +7799,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       console.error("Error creating subscription:", error);
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: "Failed to create subscription" });
     }
   });
 
@@ -7933,7 +7933,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       console.error("Error purchasing flash sale:", error);
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: "Failed to complete flash sale purchase" });
     }
   });
 
@@ -8059,7 +8059,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       console.error("Error upgrading battle pass:", error);
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: "Failed to upgrade battle pass" });
     }
   });
 
@@ -8074,7 +8074,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Reward claimed", level });
     } catch (error: any) {
       console.error("Error claiming reward:", error);
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: "Failed to claim reward" });
     }
   });
 
@@ -8369,8 +8369,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { limit = '1000', offset = '0', status } = req.query;
       
       const purchases = await storage.getAllPurchases(
-        parseInt(limit as string),
-        parseInt(offset as string),
+        Math.min(parseInt(limit as string) || 1000, 5000),
+        Math.max(parseInt(offset as string) || 0, 0),
         status as string
       );
       
