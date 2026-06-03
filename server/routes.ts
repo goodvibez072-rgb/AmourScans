@@ -5206,7 +5206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(libraryItem);
     } catch (error: any) {
       if (error.message?.includes('already in your library')) {
-        return res.status(409).json({ message: error.message });
+        return res.status(409).json({ message: "This series is already in your library" });
       }
       console.error("Error adding to library:", error);
       res.status(500).json({ message: "Internal server error" });
@@ -5345,7 +5345,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(follow);
     } catch (error: any) {
       if (error.message?.includes('already following')) {
-        return res.status(409).json({ message: error.message });
+        return res.status(409).json({ message: "You are already following this series" });
       }
       console.error("Error following series:", error);
       res.status(500).json({ message: "Internal server error" });
@@ -9011,7 +9011,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
     } catch (err: any) {
       console.error('Webhook signature verification failed:', err.message);
-      return res.status(400).json({ message: `Webhook Error: ${err.message}` });
+      return res.status(400).json({ message: "Webhook Error: invalid signature" });
     }
 
     try {
