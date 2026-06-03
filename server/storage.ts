@@ -935,7 +935,7 @@ function initializeSchema(sqliteInstance: Database.Database): void {
         "bonus_multiplier" TEXT DEFAULT "1", 
         "is_special" TEXT NOT NULL DEFAULT "false", 
         "special_description" TEXT, 
-        "created_at" TEXT DEFAULT (datetime("now")) 
+        "created_at" TEXT DEFAULT CURRENT_TIMESTAMP 
       ); 
     `);
     sqliteInstance.exec(`
