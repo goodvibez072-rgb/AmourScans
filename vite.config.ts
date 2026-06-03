@@ -34,6 +34,10 @@ export default defineConfig(async () => {
   build: {
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
+    // Disable modulepreload polyfill: it injects an inline <script> that is
+    // blocked by CSP strict script-src (no 'unsafe-inline'). All modern browsers
+    // (Chrome 66+, Firefox 115+, Safari 16.4+) support modulepreload natively.
+    modulePreload: { polyfill: false },
     // PERFORMANCE OPTIMIZATION: Advanced build configuration
     minify: 'esbuild', // Use esbuild for faster, efficient minification
     // Optimize chunk splitting for better caching
