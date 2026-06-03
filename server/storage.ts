@@ -6455,13 +6455,19 @@ export async function initializeAdminUser(): Promise<void> {
   try {
     console.log('[init] 🔍 Checking for existing admin users...');
     
-    // Check sentinel file first - if admin was ever created, skip entirely
+    // Check sentinel file - but ALWAYS verify admin actually exists in the DB.
+    // The sentinel file may be committed to git while the live DB is empty
+    // (e.g. fresh Render deploy with no persistent disk).
     if (existsSync(adminSentinelFile)) {
-      console.log('[init] ✅ Admin already seeded (sentinel file exists) - skipping admin creation');
-      return;
+      const allUsersCheck = await storage.getAllUsers();
+      const existingAdminsCheck = allUsersCheck.filter((u: any) => u.isAdmin === 'true' || u.role === 'admin');
+      if (existingAdminsCheck.length > 0) {
+        console.log('[init] Admin already seeded (sentinel + DB verified) - skipping admin creation');
+        return;
+      }
+      console.log('[init] WARNING: Sentinel file present but no admin in DB - recreating admin...');
     }
     
-    // Get admin credentials from environment variables with proper defaults
     const adminUsername = process.env.ADMIN_USERNAME || 'admin';
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@localhost.com';
     
@@ -6714,10 +6720,19 @@ export async function initializeRoles(): Promise<void> {
   try {
     console.log('[roles-init] 🔍 Checking for existing roles...');
     
-    // Check sentinel file first - if roles were ever created, skip entirely
+    // Check sentinel file - but ALWAYS verify roles actually exist in the DB.
+    // Sentinel may be committed to git while the DB is empty on a fresh deploy.
     if (existsSync(rolesSentinelFile)) {
-      console.log('[roles-init] ✅ Roles already seeded (sentinel file exists) - skipping role creation');
-      return;
+      try {
+        const existingRolesCheck = await storage.getAllRolesWithPermissions();
+        if (existingRolesCheck && existingRolesCheck.length > 0) {
+          console.log('[roles-init] Roles already seeded (sentinel + DB verified) - skipping role creation');
+          return;
+        }
+        console.log('[roles-init] WARNING: Sentinel file present but no roles in DB - recreating roles...');
+      } catch (_e) {
+        console.log('[roles-init] WARNING: Could not verify roles in DB - proceeding with seed');
+      }
     }
     
     // Define default roles with their hierarchy and permissions
