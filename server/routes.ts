@@ -639,7 +639,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             html: emailHtml
           });
           
-          console.log(`Verification email sent to ${user.email}`);
+          console.log(`Verification email sent to user ${user.id}`);
         } catch (emailError) {
           console.error("Error sending verification email:", emailError);
           // Don't fail signup if email sending fails
@@ -2147,7 +2147,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const levelSetting = await storage.getSetting('system', 'ad_intensity_level');
       const enabledSetting = await storage.getSetting('system', 'ads_enabled');
       
-      const level = levelSetting ? parseInt(levelSetting.value) : 2;
+      const level = levelSetting ? (parseInt(levelSetting.value) || 2) : 2;
       const enabled = enabledSetting ? enabledSetting.value === 'true' : true;
       
       const descriptions: { [key: number]: string } = {
@@ -2344,7 +2344,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (category === 'ads' && key === 'intensity-level') {
         const adsEnabled = await storage.getSetting('ads', 'enabled');
         broadcast.adIntensity(
-          parseInt(processedValue),
+          parseInt(processedValue) || 0,
           adsEnabled?.value === 'true',
           (req as any).session?.user?.id
         );
@@ -7203,7 +7203,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { limit, startDate, endDate } = req.query;
       
       const topAds = await storage.getTopPerformingAds(
-        limit ? parseInt(limit as string) : 5,
+        Math.min(parseInt(limit as string) || 5, 100),
         startDate as string | undefined,
         endDate as string | undefined
       );
@@ -8504,7 +8504,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString();
       }
       
-      const packages = await storage.getTopSellingPackages(parseInt(limit as string), startDate, endDate);
+      const packages = await storage.getTopSellingPackages(Math.min(parseInt(limit as string) || 10, 100), startDate, endDate);
       res.json(packages);
     } catch (error) {
       console.error("Error fetching top packages:", error);
@@ -9090,7 +9090,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ received: true });
     } catch (error: any) {
       console.error('Error processing webhook:', error);
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: "Webhook processing failed" });
     }
   });
 
