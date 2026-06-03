@@ -926,8 +926,19 @@ function initializeSchema(sqliteInstance: Database.Database): void {
     sqliteInstance.exec(`
       CREATE INDEX IF NOT EXISTS "series_chapter_idx" ON "chapters" ("series_id", "chapter_number");
     `);
-
     // Create advertisements table
+    sqliteInstance.exec(`
+    sqliteInstance.exec(`
+      CREATE TABLE IF NOT EXISTS "daily_rewards" ( 
+        "id" TEXT PRIMARY KEY NOT NULL, 
+        "day" INTEGER NOT NULL UNIQUE, 
+        "coin_reward" INTEGER NOT NULL, 
+        "bonus_multiplier" TEXT DEFAULT "1", 
+        "is_special" TEXT NOT NULL DEFAULT "false", 
+        "special_description" TEXT, 
+        "created_at" TEXT DEFAULT (datetime("now")) 
+      ); 
+    `);
     sqliteInstance.exec(`
       CREATE TABLE IF NOT EXISTS "advertisements" (
         "id" TEXT PRIMARY KEY NOT NULL,
