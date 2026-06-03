@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import SeriesCardSkeleton from "@/components/ui/SeriesCardSkeleton";
@@ -721,6 +722,7 @@ export default function Browse() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

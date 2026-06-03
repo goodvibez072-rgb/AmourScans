@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { Library as LibraryIcon, Filter, Grid, List, Trash2, BookOpen, Clock, ArrowLeft } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -303,6 +304,7 @@ export default function Library() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

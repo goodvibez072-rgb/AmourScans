@@ -16,6 +16,7 @@ import { useAuth, useLogout } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { SEO } from "@/components/SEO";
+import Footer from "@/components/Footer";
 import { fetchWithCsrf, fetchWithCsrfFormData } from "@/lib/csrf";
 
 interface ProfileData {
@@ -646,6 +647,7 @@ export default function Settings() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <Footer />
     </div>
   );
 }
