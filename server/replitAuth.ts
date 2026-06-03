@@ -603,13 +603,13 @@ import type { User } from "@shared/schema";
 
 // Helper to get user with role info from request
 async function getUserFromRequest(req: any): Promise<User | null> {
-  if (!req.session?.user) {
+  if (!req.session?.userId) {
     return null;
   }
   
   // Import storage dynamically to avoid circular dependency
   const { storage } = await import("./storage");
-  const user = await storage.getUserByUsername(req.session.user.username);
+  const user = await storage.getUserById(req.session.userId);
   return user ?? null;
 }
 

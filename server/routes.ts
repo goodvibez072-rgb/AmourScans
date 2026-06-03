@@ -5103,7 +5103,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.query.targetType) filters.targetType = req.query.targetType as string;
       if (req.query.startDate) filters.startDate = req.query.startDate as string;
       if (req.query.endDate) filters.endDate = req.query.endDate as string;
-      if (req.query.limit) filters.limit = parseInt(req.query.limit as string);
+      if (req.query.limit) filters.limit = Math.min(parseInt(req.query.limit as string) || 100, 1000);
       
       const logs = await storage.getActivityLogs(filters);
       res.json(logs);
@@ -6757,7 +6757,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // POST /api/admin/currency/adjust - Unified admin currency adjustment (admin only)
-  app.post("/api/admin/currency/adjust", actionLimiter, doubleCsrfProtection, async (req: any, res) => {
+  app.post("/api/admin/currency/adjust", adminAuth, actionLimiter, doubleCsrfProtection, async (req: any, res) => {
     try {
       if (!req.session?.user) {
         return res.status(401).json({ message: "Authentication required" });
