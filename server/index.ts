@@ -51,10 +51,9 @@ async function bootstrap() {
     const app = express.default();
 
     // SECURITY: Configure Express to trust proxy headers
-    // This is required for correct HTTPS detection behind reverse proxies (Nginx, CloudFlare, Replit)
-    // Setting to 1 trusts only the FIRST proxy hop (Replit infrastructure)
-    // This prevents attackers from spoofing X-Forwarded-* headers by connecting directly to origin
-    app.set('trust proxy', 1);
+    // This is required for correct HTTPS detection behind reverse proxies (Nginx, CloudFlare, Replit, Render)
+    // 'true' trusts all proxy hops - safe because we explicitly read X-Forwarded-Proto below
+    app.set('trust proxy', true);
 
     // SECURITY: HTTPS redirect middleware for production
     // This ensures all requests use HTTPS, redirecting HTTP to HTTPS
@@ -65,10 +64,14 @@ async function bootstrap() {
         return next();
       }
       
-      // Check if request is over HTTPS
-      // req.secure and req.protocol now work correctly because we set 'trust proxy'
-      // Express validates these based on trusted proxy headers, preventing bypass attacks
-      if (!req.secure && req.protocol !== 'https') {
+      // Check X-Forwarded-Proto directly - more reliable than req.protocol across different
+      // hosting providers (Render, Railway, Fly.io) that may have multiple proxy hops.
+      // Render terminates SSL and forwards requests as HTTP internally, setting this header.
+      const forwardedProto = req.headers['x-forwarded-proto'];
+      const proto = Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto;
+      const isHttps = proto === 'https' || req.secure;
+      
+      if (!isHttps) {
         // Get host header safely - req.get() returns undefined if not present
         const host = req.get('host');
         
@@ -114,11 +117,13 @@ async function bootstrap() {
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          // PRODUCTION: No unsafe-inline/eval. DEVELOPMENT: Allow for Vite HMR
+          // Allow unsafe-inline for scripts: Vite's production build injects an inline
+          // modulepreload polyfill script into the HTML. Blocking it causes a white screen.
           scriptSrc: [
             "'self'",
             "https://js.stripe.com",
-            ...(isDevelopment ? ["'unsafe-inline'", "'unsafe-eval'"] : [])
+            "'unsafe-inline'",
+            ...(isDevelopment ? ["'unsafe-eval'"] : [])
           ],
           // Allow unsafe-inline for styles: React, Framer Motion, and Radix UI
           // all set inline style attributes on DOM elements at runtime.
@@ -502,8 +507,8 @@ async function bootstrap() {
       const status = err.status || err.statusCode || 500;
       const message = err.message || "Internal Server Error";
 
-      console.error("[error]", err);
       res.status(status).json({ message });
+      throw err;
     });
 
     // importantly only setup vite in development and after
