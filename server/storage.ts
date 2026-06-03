@@ -928,7 +928,6 @@ function initializeSchema(sqliteInstance: Database.Database): void {
     `);
     // Create advertisements table
     sqliteInstance.exec(`
-    sqliteInstance.exec(`
       CREATE TABLE IF NOT EXISTS "daily_rewards" ( 
         "id" TEXT PRIMARY KEY NOT NULL, 
         "day" INTEGER NOT NULL UNIQUE, 
