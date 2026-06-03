@@ -856,15 +856,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req: any, res) => {
       try {
         if (req.user) {
-          req.session.userId = req.user.id;
-          req.session.user = req.user;
+          const { password: _pw, ...safeUser } = req.user as any;
+          req.session.userId = safeUser.id;
+          req.session.user = safeUser;
           
-          await storage.updateUser(req.user.id, {
+          await storage.updateUser(safeUser.id, {
             lastLoginAt: new Date().toISOString(),
-            loginCount: (req.user.loginCount || 0) + 1,
+            loginCount: (safeUser.loginCount || 0) + 1,
           });
           
-          await auditLogger.logLoginSuccess(req.user.id, req);
+          await auditLogger.logLoginSuccess(safeUser.id, req);
           
           res.redirect("/?login=success");
         } else {
@@ -887,15 +888,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req: any, res) => {
       try {
         if (req.user) {
-          req.session.userId = req.user.id;
-          req.session.user = req.user;
+          const { password: _pw, ...safeUser } = req.user as any;
+          req.session.userId = safeUser.id;
+          req.session.user = safeUser;
           
-          await storage.updateUser(req.user.id, {
+          await storage.updateUser(safeUser.id, {
             lastLoginAt: new Date().toISOString(),
-            loginCount: (req.user.loginCount || 0) + 1,
+            loginCount: (safeUser.loginCount || 0) + 1,
           });
           
-          await auditLogger.logLoginSuccess(req.user.id, req);
+          await auditLogger.logLoginSuccess(safeUser.id, req);
           
           res.redirect("/?login=success");
         } else {
@@ -9621,7 +9623,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
       
-      res.json(user);
+      const { password: _, ...safeUser } = user;
+      res.json(safeUser);
     } catch (error) {
       console.error("Error assigning user role:", error);
       res.status(500).json({ message: "Failed to assign user role" });

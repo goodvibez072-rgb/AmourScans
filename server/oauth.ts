@@ -12,7 +12,12 @@ export async function setupOAuth(app: any) {
   passport.deserializeUser(async (id: string, done) => {
     try {
       const user = await storage.getUserById(id);
-      done(null, user);
+      if (user) {
+        const { password: _, ...safeUser } = user;
+        done(null, safeUser);
+      } else {
+        done(null, undefined);
+      }
     } catch (error) {
       done(error, null);
     }
