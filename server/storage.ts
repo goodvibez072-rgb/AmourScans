@@ -5620,7 +5620,7 @@ export class DatabaseStorage implements IStorage {
       }
 
       if (reward.rewardType === 'coins') {
-        const amount = parseInt(reward.rewardValue);
+        const amount = parseInt(reward.rewardValue) || 0;
         await this.processCurrencyChange(userId, amount, 'battle_pass_reward', `Battle Pass Tier ${tier} reward`);
       }
 
