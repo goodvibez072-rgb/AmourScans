@@ -68,3 +68,21 @@ backups/
   data/.admin-seeded
   data/.roles-seeded
   
+# Secret key files - MUST NOT be committed (use environment variables instead)
+data/*.key
+data/csrf-secret.key
+data/session-secret.key
+
+# Database backup files with timestamps
+data/*.backup*
+data/*.db.backup*
+
+# Profile photo uploads
+uploads/profiles/
+
+# WebP and AVIF uploads
+uploads/*.webp
+uploads/*.avif
+
+# Chapter image storage (large binary files - use object storage or CDN in production)
+data/storage/

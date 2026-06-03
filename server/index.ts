@@ -167,7 +167,7 @@ async function bootstrap() {
     // Stripe webhook MUST be before express.json() to preserve raw body for signature verification
     const { default: Stripe } = await import("stripe");
     const stripe = process.env.STRIPE_SECRET_KEY
-      ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-11-20.acacia" })
+      ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2025-09-30.clover" })
       : null;
 
     app.post("/api/webhooks/stripe", express.default.raw({ type: 'application/json' }), async (req, res) => {

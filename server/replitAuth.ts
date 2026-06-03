@@ -282,9 +282,7 @@ class SQLiteSessionStore extends session.Store {
           throw new Error(`Session database initialization failed after ${maxAttempts} attempts: ${(error as Error).message}`);
         }
         
-        // Wait a bit before retrying
-        console.log('[sessions] ⏳ Waiting before retry...');
-        require('child_process').execSync('sleep 1');
+        // Brief pause logic removed — was a blocking ESM-incompatible call
       }
     }
     
@@ -364,6 +362,11 @@ class SQLiteSessionStore extends session.Store {
 
 // Function to get or create a persistent session secret
 function getOrCreateSessionSecret(): string {
+  // SECURITY: Prefer SESSION_SECRET env var (set in hosting platform, never committed to git)
+  if (process.env.SESSION_SECRET && process.env.SESSION_SECRET.length >= 32) {
+    console.log('[sessions] ✅ Using SESSION_SECRET environment variable');
+    return process.env.SESSION_SECRET;
+  }
   const secretFilePath = './data/session-secret.key';
   const dataDir = './data';
   
@@ -412,6 +415,11 @@ function getOrCreateSessionSecret(): string {
 
 // Function to get or create a persistent CSRF secret
 export function getOrCreateCsrfSecret(): string {
+  // SECURITY: Prefer CSRF_SECRET env var (set in hosting platform, never committed to git)
+  if (process.env.CSRF_SECRET && process.env.CSRF_SECRET.length >= 32) {
+    console.log('[csrf] ✅ Using CSRF_SECRET environment variable');
+    return process.env.CSRF_SECRET;
+  }
   const secretFilePath = './data/csrf-secret.key';
   const dataDir = './data';
   
