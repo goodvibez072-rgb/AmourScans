@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import CommentSection from "@/components/CommentSection";
 import MangaDetailSkeleton from "@/components/ui/MangaDetailSkeleton";
 import { SEO, StructuredData } from "@/components/SEO";
+import Footer from "@/components/Footer";
 import { InlineAd } from "@/components/AdDisplay";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -698,6 +699,7 @@ export default function MangaDetailPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
