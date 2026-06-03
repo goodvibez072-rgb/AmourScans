@@ -63,3 +63,8 @@ Thumbs.db
 *.backup
 backup/
 backups/
+
+  # Seeding sentinel files (must not be committed — they block re-seeding on fresh deploys)
+  data/.admin-seeded
+  data/.roles-seeded
+  
