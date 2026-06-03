@@ -1630,15 +1630,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
       
-      // Broadcast user update event for real-time updates
+      // Remove password from response
+      const { password: _, ...safeUser } = updatedUser;
+
+      // Broadcast user update event for real-time updates (password-free)
       broadcast.user({
         userId: id,
         action: 'updated',
-        data: updatedUser
+        data: safeUser
       });
-      
-      // Remove password from response
-      const { password: _, ...safeUser } = updatedUser;
       const userWithAdminFlag = {
         ...safeUser,
         isAdmin: updatedUser.isAdmin === 'true'
